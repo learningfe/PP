@@ -2,7 +2,7 @@ import json
 import os
 
 class AccountManager:
-    def __init__(self,user_data_file_path = 'user_data.json'):
+    def __init__(self,user_data_file_path = '.\\user_data.json'):
         self.user_data_file_path = user_data_file_path
         self.user_data = {}
     
@@ -50,10 +50,3 @@ class AccountManager:
                 self.save_user_data()
                 return True
         return False
-
-manager = AccountManager()
-manager.load_user_data()
-
-manager.add_user('test','test')
-
-
