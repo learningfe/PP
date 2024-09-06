@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Chatroom</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="chatroom">
+    <div class="chatroom-header">
+      <h1>Chatroom</h1>
+    </div>
+
+    <div class="chatroom-content">
+      <div id="messages">
+        <div class="message" data-role="visitor" style="display: none;">
+          <div class="message-avatar">C</div>
+          <div class="message-content">Hi, this is Chris</div>
+          <div class="message-time">20:31</div>
+        </div>
+        <div class="message" data-role="user" style="display: none;">
+          <div class="message-avatar">l</div>
+          <div class="message-content">Hello, i am lux</div>
+          <div class="message-time">20:32</div>
+        </div>
+      </div>
+      <span id="bottom"></span>
+    </div>
+
+    <div class="chatroom-footer">
+      <form id="form">
+        <textarea name="message" id="textarea" role="4"></textarea>
+      </form>
+    </div>
+  </div>
+
+  <dialog id="login-modal" class="login-modal">
+    <h2>Login</h2>
+    <form id="login-form">
+      <div>
+        <label for="nickname">Nickname:</label>
+        <input type="text" id="nickname" name="nickname" required>
+      </div>
+      <button type="submit">Login</button>
+    </form>
+  </dialog>
+
+  <script src="index.js"></script>
+</body>
+</html>
