@@ -2,38 +2,24 @@ import asyncio
 import websockets
 from config import PORT
 from Parser import Parser
-#from RequestHandler import RequestHandler
+from RequestHandler import RequestHandler
 
 class ChatServer:
-    def init_server(self):
-        self.Parser = Parser()
-        #self.RequestHandler = RequestHandler()
-        pass
+    def __init__(self):
+        self.clients = set()
 
-    async def handle_single_client(self, websocket, path):
-        async for message in websocket:
-            '''
+    async def handle_single_client(self, client, path):
+        self.clients.add(client)
+        print(f"New client connected")
+        async for message in client:
             if message:
-                try:
-                    parsed_data = self.Parser.parse(message)
-                except UnknownCommandError:
-                    continue
-                except ParameterError:
-                    continue
-                request_id = parsed_data[0]
-                response = await self.RequestHandler.handle_request(websocket, request_id, **parsed_data[1])
-                await websocket.send(response)
-            else:
-                break
-            '''
-            if message:
-                parsed_data = self.Parser.parse(message)
-                await websocket.send(parsed_data)
+                print(f"Received message: {message}")
+                message_parsed = Parser().parse_message(message)
+                await RequestHandler(self.server, self.clients).handle_request(**message_parsed)
 
     def start_server(self):
-        self.init_server()
-        start_server = websockets.serve(self.handle_single_client, '0.0.0.0', PORT)
-        asyncio.get_event_loop().run_until_complete(start_server)
+        self.server = websockets.serve(self.handle_single_client, '0.0.0.0', PORT)
+        asyncio.get_event_loop().run_until_complete(self.server)
         asyncio.get_event_loop().run_forever()
 
 if __name__ == "__main__":
