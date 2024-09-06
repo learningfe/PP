@@ -1,10 +1,12 @@
 import asyncio
 import websockets
+from config import PORT
+from Parser import Parser
 #from RequestHandler import RequestHandler
 
 class ChatServer:
     def init_server(self):
-        #self.Parser = Parser()
+        self.Parser = Parser()
         #self.RequestHandler = RequestHandler()
         pass
 
@@ -25,11 +27,12 @@ class ChatServer:
                 break
             '''
             if message:
-                await websocket.send(message)
+                parsed_data = self.Parser.parse(message)
+                await websocket.send(parsed_data)
 
     def start_server(self):
         self.init_server()
-        start_server = websockets.serve(self.handle_single_client, '0.0.0.0', 8765)
+        start_server = websockets.serve(self.handle_single_client, '0.0.0.0', PORT)
         asyncio.get_event_loop().run_until_complete(start_server)
         asyncio.get_event_loop().run_forever()
 
