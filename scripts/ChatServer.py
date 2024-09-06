@@ -1,19 +1,16 @@
-import socket
-from SocketWrapper import SocketWrapper
-import threading
-from ServerSocket import ServerSocket 
-from Parser import *
-from RequestHandler import RequestHandler
+import asyncio
+import websockets
+#from RequestHandler import RequestHandler
 
-class ChatServer:   
+class ChatServer:
     def init_server(self):
-        self.Server = ServerSocket()
-        self.Parser = Parser()
-        self.RequestHandler = RequestHandler(self.Server)
+        #self.Parser = Parser()
+        #self.RequestHandler = RequestHandler()
+        pass
 
-    def handle_single_client(self,client:SocketWrapper):
-        while True:
-            message = client.recv()
+    async def handle_single_client(self, websocket, path):
+        async for message in websocket:
+            '''
             if message:
                 try:
                     parsed_data = self.Parser.parse(message)
@@ -22,22 +19,20 @@ class ChatServer:
                 except ParameterError:
                     continue
                 request_id = parsed_data[0]
-                print(self.RequestHandler.handle_request(client,request_id,**parsed_data[1]))
+                response = await self.RequestHandler.handle_request(websocket, request_id, **parsed_data[1])
+                await websocket.send(response)
             else:
                 break
-        client.close()
+            '''
+            if message:
+                await websocket.send(message)
 
-    def handle_clients(self,server:socket):
-        while True:
-            client_socket,address = server.accept()
-            client = SocketWrapper(client_socket)
-
-            print(f"connection from {address}")
-            t = threading.Thread(target=self.handle_single_client,args=(client,))
-            t.start()
-
+    def start_server(self):
+        self.init_server()
+        start_server = websockets.serve(self.handle_single_client, '0.0.0.0', 8765)
+        asyncio.get_event_loop().run_until_complete(start_server)
+        asyncio.get_event_loop().run_forever()
 
 if __name__ == "__main__":
     chat_server = ChatServer()
-    chat_server.init_server()
-    chat_server.handle_clients(chat_server.Server)
+    chat_server.start_server()

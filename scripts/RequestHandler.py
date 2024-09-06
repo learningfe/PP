@@ -5,7 +5,7 @@ from ServerSocket import ServerSocket
 from SocketWrapper import SocketWrapper
 
 class RequestHandler:
-    def __init__(self,server:ServerSocket):
+    def __init__(self):
         self.request_handlers = {}
         self.register_handler(REQUEST_LIST['REQUEST_LOGIN'],self.handle_login_request)
         self.register_handler(REQUEST_LIST['REQUEST_SEND_MESSAGE'],self.handle_send_message_request)
