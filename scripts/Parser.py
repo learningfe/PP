@@ -7,7 +7,6 @@ class Parser:
             type = message.get("type")
             content = message.get("content")
             nickname = message.get("nickname")
-
             return {
                 "type": type,
                 "content": content,

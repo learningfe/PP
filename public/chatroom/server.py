@@ -2,7 +2,7 @@ import http.server
 import socketserver
 import os
 
-directory_to_serve = 'public/chatroom'
+directory_to_serve = './'
 
 os.chdir(directory_to_serve)
 

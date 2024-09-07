@@ -11,11 +11,21 @@ class ChatServer:
     async def handle_single_client(self, client, path):
         self.clients.add(client)
         print(f"New client connected")
-        async for message in client:
-            if message:
-                print(f"Received message: {message}")
-                message_parsed = Parser().parse_message(message)
-                await RequestHandler(self.server, self.clients).handle_request(**message_parsed)
+        try:
+            async for message in client:
+                if message:
+                    print(f"Received message: {message}")
+                    message_parsed = Parser().parse_message(message)
+                    await RequestHandler(self.server, self.clients).handle_request(**message_parsed)
+        except websockets.ConnectionClosedError as e:
+            print(f"Connection closed with error: {e}")
+        except asyncio.CancelledError:
+            print("Connection handler task was cancelled.")
+        except Exception as e:
+            print(f"Unexpected error: {e}")
+        finally:
+            self.clients.remove(client)
+            await client.close()
 
     def start_server(self):
         self.server = websockets.serve(self.handle_single_client, '0.0.0.0', PORT)
