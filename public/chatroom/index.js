@@ -47,6 +47,25 @@ class ChatService {
   }
 }
 
+class User {
+  #storage = null
+
+  constructor(storage) {
+    this.#storage = storage
+  }
+
+  getNickname() {
+    return this.#storage.getItem('nickname')
+  }
+
+  setNickname(nickname) {
+    this.#storage.setItem('nickname', nickname)
+  }
+}
+
+// user
+const user = new User(sessionStorage)
+
 // create service instance
 const service = new ChatService('ws://127.0.0.1:8765/')
 
@@ -123,11 +142,10 @@ function onCompositionEnd() {
 function onSubmit() {
   const content = formElement.elements.message.value
   if (content.trim()) {
-    const nickname = localStorage.getItem('nickname')
     service.send({
       type: 'message',
       content,
-      nickname,
+      nickname: user.getNickname(),
     })
     formElement.reset()
   }
@@ -145,8 +163,7 @@ function login() {
     loginFormElement.addEventListener('submit', (e) => {
       e.preventDefault()
 
-      const nickname = loginFormElement.elements.nickname.value
-      localStorage.setItem('nickname', nickname)
+      user.setNickname(loginFormElement.elements.nickname.value)
       loginModalElement.close()
 
       resolve()
@@ -155,7 +172,7 @@ function login() {
 }
 
 // check whether user is logged in
-if (!localStorage.getItem('nickname')) {
+if (!user.getNickname()) {
   loginModalElement.showModal()
 
   login().then(() => {
@@ -166,7 +183,6 @@ if (!localStorage.getItem('nickname')) {
 }
 
 service.subscribe((message) => {
-  const nickname = localStorage.getItem('nickname')
-  const role = nickname === message.nickname ? 'user' : 'visitor'
+  const role = user.getNickname() === message.nickname ? 'user' : 'visitor'
   addMessage({ ...message, role })
 })
