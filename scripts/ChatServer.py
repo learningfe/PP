@@ -3,6 +3,7 @@ import websockets
 from config import PORT
 from Parser import Parser
 from RequestHandler import RequestHandler
+from Logger import Logger
 
 class ChatServer:
     def __init__(self):
@@ -10,19 +11,16 @@ class ChatServer:
 
     async def handle_single_client(self, client, path):
         self.clients.add(client)
-        print(f"New client connected")
+        Logger().log(f"New client connected: {client.remote_address}")
         try:
             async for message in client:
                 if message:
-                    print(f"Received message: {message}")
+                    Logger().log(f"Received message from {client.remote_address}: {message}")
                     message_parsed = Parser().parse_message(message)
-                    await RequestHandler(self.server, self.clients).handle_request(**message_parsed)
-        except websockets.ConnectionClosedError as e:
-            print(f"Connection closed with error: {e}")
-        except asyncio.CancelledError:
-            print("Connection handler task was cancelled.")
+                    response = await RequestHandler(self.server, self.clients).handle_request(**message_parsed)
+                    Logger().log(f"Sent response to {client.remote_address}: {response}")
         except Exception as e:
-            print(f"Unexpected error: {e}")
+            Logger().error(f"Error handling client {client.remote_address}: {e}")
         finally:
             self.clients.remove(client)
             await client.close()
@@ -33,5 +31,6 @@ class ChatServer:
         asyncio.get_event_loop().run_forever()
 
 if __name__ == "__main__":
+    Logger().log("Starting chat server")
     chat_server = ChatServer()
     chat_server.start_server()
