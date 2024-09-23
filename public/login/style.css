@@ -1,0 +1,24 @@
+body {
+  margin: 0;
+  height: 100vh;
+  padding: 32px;
+  box-sizing: border-box;
+
+  text-align: center;
+}
+
+.error-name {
+  font-size: large;
+  font-weight: bold;
+}
+
+.error-description {
+  font-size: small;
+  font-weight: normal;
+}
+
+.error-uri {
+  display: none;
+  font-size: small;
+  font-weight: normal;
+}

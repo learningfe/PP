@@ -2,3 +2,6 @@
 
 # virtual envs
 .venv
+
+# logs
+*.log
