@@ -11,8 +11,7 @@ GITHUB_REDIRECT_URI = 'http://localhost:8100/api/v1/oauth/github'
 GITHUB_ACCESS_TOKEN_URL = 'https://github.com/login/oauth/access_token'
 GITHUB_USER_API = 'https://api.github.com/user'
 
-
-logger = Logger("api.log")
+logger = Logger("./log/api.log")
 
 class ParameterError(Exception):
     def __init__(self, message: str):

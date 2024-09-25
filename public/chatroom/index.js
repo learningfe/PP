@@ -67,8 +67,7 @@ class User {
 const user = new User(sessionStorage)
 
 // create service instance
-const service = new ChatService('ws://127.0.0.1:8765/')
-
+const service = new ChatService('ws://116.62.152.206/ws')
 // ui & user interaction
 const $ = document.querySelector.bind(document)
 

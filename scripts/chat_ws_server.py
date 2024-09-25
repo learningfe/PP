@@ -5,7 +5,7 @@ from Parser import Parser
 from RequestHandler import RequestHandler
 from Logger import Logger
 
-logger = Logger("chat_server.log")
+logger = Logger("./log/chat_server.log")
 
 class ChatServer:
     def __init__(self):
