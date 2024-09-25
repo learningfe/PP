@@ -1,5 +1,6 @@
 import json
 import os
+from UserData import UserData
 
 class AccountManager:
     def __init__(self,user_data_file_path = '.\\user_data.json'):
@@ -17,12 +18,12 @@ class AccountManager:
         with open(self.user_data_file_path,'w') as f:
             json.dump(self.user_data,f)
 
-    def add_user(self,username:str,password:str):
+    def add_user(self,username:str,password:str,user_data:UserData):
         self.load_user_data()
         for user in self.user_data:
             if user['user_name'] == username:
                 return False
-        new_user = dict(user_name = username,password = password,nickname = '')
+        new_user = dict(user_name = username,password = password,nickname = '',user_data = user_data.__dict__)
         self.user_data.append(new_user)
         self.save_user_data()
         return True
