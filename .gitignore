@@ -6,4 +6,4 @@
 # logs
 *.log
 
-session.json
+**/session.json
