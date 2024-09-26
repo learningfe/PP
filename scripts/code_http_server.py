@@ -1,15 +1,15 @@
 from http.server import HTTPServer, BaseHTTPRequestHandler
-from urllib.parse import urlparse, parse_qs
-from requests import post, get, exceptions
+from urllib.parse import urlparse
+from requests import exceptions
 from Logger import Logger
 import json
+from github_oauth_client import github_oauth_client
+from github_user_api_client import github_user_api_client
 
 # Read secret from environment variable or something else
 GITHUB_CLIENT_ID = ''
 GITHUB_CLIENT_SECRET = ''
 GITHUB_REDIRECT_URI = 'http://localhost:8100/api/v1/oauth/github'
-GITHUB_ACCESS_TOKEN_URL = 'https://github.com/login/oauth/access_token'
-GITHUB_USER_API = 'https://api.github.com/user'
 
 logger = Logger("./log/api.log")
 
@@ -40,8 +40,6 @@ class RequestHandler(BaseHTTPRequestHandler):
         path = url_object.path
 
         if path == '/api/v1/login/github':
-            logger.log(f'user login')
-
             try:
                 body = json.loads(self.rfile.read(content_length).decode('utf-8'))
             except Exception as e:
@@ -57,38 +55,17 @@ class RequestHandler(BaseHTTPRequestHandler):
                 logger.log(f'get access token, code={code}')
 
                 # 获取 access_token
-                access_token_request_data = {
-                    'client_id': GITHUB_CLIENT_ID,
-                    'client_secret': GITHUB_CLIENT_SECRET,
-                    'redirect_uri': GITHUB_REDIRECT_URI,
-                    'code': code,
-                }
-                access_token_response = post(GITHUB_ACCESS_TOKEN_URL, data=access_token_request_data, headers={ 'Accept': 'application/json' })
-                access_token_response.raise_for_status()
-                access_token_response_json = access_token_response.json()
-
-                # 获取 AccessToken 失败
-                get_access_token_error = access_token_response_json.get('error')
-                get_access_token_error_description = access_token_response_json.get('error_description')
-                if get_access_token_error:
-                    raise GithubAccessTokenError(get_access_token_error, get_access_token_error_description)
-
-                access_token = access_token_response_json.get('access_token')
-
-                logger.log(f'access_token: {access_token}')
-
-                user_info_response = get(GITHUB_USER_API, headers={ 'Authorization': f'Bearer {access_token}' })
-                user_info_response.raise_for_status()
-                user_info_response_json = user_info_response.json()
-
-                # 获取用户信息失败
-                get_user_info_error = user_info_response_json.get('error')
-                get_user_info_error_description = user_info_response_json.get('error_description')
-                if get_user_info_error:
-                    raise GithubUserInfoError(get_user_info_error, get_user_info_error_description)
+                github_oauth_client_instance = github_oauth_client(GITHUB_CLIENT_ID, GITHUB_CLIENT_SECRET, GITHUB_REDIRECT_URI, code)
+                access_token = github_oauth_client_instance.get_access_token()
+                logger.log(f'get access token success, access_token={access_token}')
+                
+                # 获取用户信息
+                github_user_api_client_instance = github_user_api_client(access_token)       
+                user_info_response_json = github_user_api_client_instance.get_user_info_json()
 
                 avatar_url = user_info_response_json.get('avatar_url')
                 user_name = user_info_response_json.get('name')
+                logger.log(f'get user info success, avatar_url={avatar_url}, user_name={user_name}')
 
                 self.respond_html(200, f'<div style="display: flex; align-items: center;">Welcome, <img src="{avatar_url}" width="20" height="20" /> <span>{user_name}</span></div>')
 
